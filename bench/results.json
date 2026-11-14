@@ -1,0 +1,130 @@
+{
+  "model": "LiquidAI/LFM3-1.7B-GGUF:Q4_0",
+  "date": "2026-11-14 03:34 UTC",
+  "cold": {
+    "server_up_s": 1.07,
+    "first_request_s": 2.51,
+    "first_request_ttft_s": 1.74
+  },
+  "workloads": [
+    {
+      "workload": "no_context_short",
+      "runs": 5,
+      "prompt_tokens": 82,
+      "completion_tokens": 64,
+      "ttft_s": 0.107,
+      "ttfa_s": 0.107,
+      "total_s": 1.647,
+      "prefill_tps": 909.061,
+      "decode_tps": 41.517,
+      "e2e_tps": 38.858,
+      "ttft_p_max_s": 0.114,
+      "finish": [
+        "length"
+      ],
+      "sample": "Based on the available manual excerpts, I need to refer to the section covering error code E04 for the pump motor. However, the provided excerpts in the prompt do not include the specific manual content or page numbers for error code E04 or pump motor troubleshooting steps.\n\nTherefore, I cannot dete"
+    },
+    {
+      "workload": "rag_4_chunks",
+      "runs": 5,
+      "prompt_tokens": 570,
+      "completion_tokens": 256,
+      "ttft_s": 0.5,
+      "ttfa_s": 0.5,
+      "total_s": 6.661,
+      "prefill_tps": 1178.526,
+      "decode_tps": 41.612,
+      "e2e_tps": 38.431,
+      "ttft_p_max_s": 0.511,
+      "finish": [
+        "length"
+      ],
+      "sample": "The user asks: \"The pump motor won't start and the display shows E04. What should I check first?\" We need to refer to the manual excerpts. The excerpts are sections about troubleshooting drive failing to energize. We see multiple pages: p.1, p.2, p.3, p.4. They all seem to have similar steps, but wi"
+    },
+    {
+      "workload": "rag_8_chunks",
+      "runs": 5,
+      "prompt_tokens": 1050,
+      "completion_tokens": 256,
+      "ttft_s": 0.878,
+      "ttfa_s": 0.878,
+      "total_s": 7.006,
+      "prefill_tps": 1218.965,
+      "decode_tps": 41.743,
+      "e2e_tps": 36.542,
+      "ttft_p_max_s": 0.884,
+      "finish": [
+        "length"
+      ],
+      "sample": "According to the manual excerpts, Section 4.2 (p. 4) provides the troubleshooting steps for a drive failing to energize, and specifically lists fault code **E04** as indicating an overcurrent condition. The steps to check are:\n\n- Verify that the main disconnect is closed and that line voltage is pre"
+    },
+    {
+      "workload": "rag_16_chunks",
+      "runs": 5,
+      "prompt_tokens": 2010,
+      "completion_tokens": 256,
+      "ttft_s": 1.602,
+      "ttfa_s": 1.602,
+      "total_s": 7.952,
+      "prefill_tps": 1265.839,
+      "decode_tps": 40.317,
+      "e2e_tps": 32.027,
+      "ttft_p_max_s": 1.607,
+      "finish": [
+        "length",
+        "stop"
+      ],
+      "sample": "Based on the manual excerpts (Sections 4.2 through 16.2), when the drive fails to energize and the display shows fault code **E04**, the procedure is:\n\n- Verify the main disconnect is closed and that line voltage is present at terminals L1, L2 and L3. [p. 4]\n- **Check the control transformer fuse F4"
+    },
+    {
+      "workload": "rag_28_chunks",
+      "runs": 5,
+      "prompt_tokens": 3450,
+      "completion_tokens": 256,
+      "ttft_s": 2.751,
+      "ttfa_s": 2.751,
+      "total_s": 9.247,
+      "prefill_tps": 1263.77,
+      "decode_tps": 38.559,
+      "e2e_tps": 27.177,
+      "ttft_p_max_s": 2.766,
+      "finish": [
+        "length",
+        "stop"
+      ],
+      "sample": "According to the manual excerpts, starting from Section 4.2 (p. 4) and onward, when the drive fails to energize and a fault code is displayed, the steps to check are:\n\n- Verify the main disconnect is closed and line voltage (L1, L2, L3) is present. [p. 4]\n- Check the control transformer fuse **F4** "
+    },
+    {
+      "workload": "long_answer_512",
+      "runs": 5,
+      "prompt_tokens": 578,
+      "completion_tokens": 512,
+      "ttft_s": 0.49,
+      "ttfa_s": 0.49,
+      "total_s": 12.783,
+      "prefill_tps": 1213.19,
+      "decode_tps": 41.658,
+      "e2e_tps": 40.053,
+      "ttft_p_max_s": 0.507,
+      "finish": [
+        "length"
+      ],
+      "sample": "From the manual excerpts:\n\n- On page [p. 4] (Section 4.2 Troubleshooting), for the condition \"If the drive fails to energize,\" the first steps are:\n  1. Verify that the main disconnect is closed and that line voltage is present at terminals L1, L2, and L3.\n  2. Check the control transformer fuse (F4"
+    }
+  ],
+  "sustained": {
+    "queries": 20,
+    "wall_s": 138.1,
+    "nsp_temp_start_c": 65.4,
+    "nsp_temp_end_c": 68.6,
+    "decode_tps_first5": 41.3,
+    "decode_tps_last5": 41.5,
+    "ttft_first5_s": 0.886,
+    "ttft_last5_s": 0.875
+  },
+  "memory": {
+    "rss_mb": 388.6,
+    "peak_rss_mb": 388.6,
+    "system_used_gb": 2.4
+  }
+}
