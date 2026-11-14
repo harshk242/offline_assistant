@@ -1,0 +1,38 @@
+[
+  {"id": "G1", "type": "paraphrase", "q": "The pump won't start when I hit the switch. What should I check?", "manual": "grundfos_cr_cri_crn_pump", "pages": [35], "keywords": ["fuse", "breaker", "power supply"]},
+  {"id": "G2", "type": "paraphrase", "q": "Pump is running but nothing's coming out.", "manual": "grundfos_cr_cri_crn_pump", "pages": [36], "keywords": ["inlet", "valve", "air"]},
+  {"id": "G3", "type": "direct", "q": "How do I reverse the direction of rotation if it's wrong?", "manual": "grundfos_cr_cri_crn_pump", "pages": [26], "keywords": ["two phases"]},
+  {"id": "G4", "type": "paraphrase", "q": "The breaker kicks out as soon as I power the pump on.", "manual": "grundfos_cr_cri_crn_pump", "pages": [35], "keywords": ["fuse", "cable", "winding"]},
+  {"id": "G5", "type": "paraphrase", "q": "It's making a rattling or gravel noise.", "manual": "grundfos_cr_cri_crn_pump", "pages": [36], "keywords": ["cavitation", "inlet"]},
+  {"id": "G6", "type": "direct", "q": "How many times per hour can I start a pump with a 4 kW motor?", "manual": "grundfos_cr_cri_crn_pump", "pages": [40], "keywords": ["100"]},
+  {"id": "G7", "type": "direct", "q": "How often should the motor bearings be replaced on a 5.5 kW 2-pole motor at 40 °C ambient?", "manual": "grundfos_cr_cri_crn_pump", "pages": [32], "keywords": ["20000|20,000|20 000"]},
+  {"id": "G8", "type": "paraphrase", "q": "Water is dripping from around the shaft.", "manual": "grundfos_cr_cri_crn_pump", "pages": [36], "keywords": ["shaft seal"]},
+  {"id": "G9", "type": "direct", "q": "What should I do before starting the pump for the first time?", "manual": "grundfos_cr_cri_crn_pump", "pages": [25], "keywords": ["prime|fill"]},
+
+  {"id": "D1", "type": "code", "q": "The compressor display is showing a 1. What does it mean?", "manual": "doosan_p250wjd_air_compressor", "pages": [40], "keywords": ["airend|A/E", "temp"]},
+  {"id": "D2", "type": "code", "q": "Code 5 on the compressor controller.", "manual": "doosan_p250wjd_air_compressor", "pages": [40, 58], "keywords": ["oil pressure|oil press"]},
+  {"id": "D3", "type": "paraphrase", "q": "The compressor keeps overheating and shutting itself off. What could cause that?", "manual": "doosan_p250wjd_air_compressor", "pages": [56, 57], "keywords": ["cooler|oil"]},
+  {"id": "D4", "type": "paraphrase", "q": "Compressor won't fire up at all.", "manual": "doosan_p250wjd_air_compressor", "pages": [56], "keywords": ["fuel"]},
+  {"id": "D5", "type": "direct", "q": "When is the first engine oil change due?", "manual": "doosan_p250wjd_air_compressor", "pages": [50], "keywords": ["50"]},
+  {"id": "D6", "type": "code", "q": "What does code 3 mean?", "manual": "doosan_p250wjd_air_compressor", "pages": [40, 57], "keywords": ["battery"]},
+  {"id": "D7", "type": "paraphrase", "q": "Engine bogging down and shutting off at low RPM.", "manual": "doosan_p250wjd_air_compressor", "pages": [40, 58], "keywords": ["speed|filter"]},
+  {"id": "D8", "type": "direct", "q": "Which items should be checked daily?", "manual": "doosan_p250wjd_air_compressor", "pages": [50], "keywords": ["oil level"]},
+
+  {"id": "L1", "type": "code", "q": "Drive is showing F.OF.", "manual": "lenze_smvector_vfd", "pages": [45], "keywords": ["short circuit|output fault|transistor"]},
+  {"id": "L2", "type": "code", "q": "What's an HF fault and how do I fix it?", "manual": "lenze_smvector_vfd", "pages": [44], "keywords": ["DC bus|bus voltage", "P105|decel|mains"]},
+  {"id": "L3", "type": "paraphrase", "q": "The drive tripped because it lost a phase on the incoming power.", "manual": "lenze_smvector_vfd", "pages": [45], "keywords": ["single-phase|mains phase|F.SF"]},
+  {"id": "L4", "type": "code", "q": "The display says LC and the drive won't restart.", "manual": "lenze_smvector_vfd", "pages": [42], "keywords": ["lockout|manual reset|restart"]},
+  {"id": "L5", "type": "paraphrase", "q": "Drive faults the moment I power it on with the run switch already closed.", "manual": "lenze_smvector_vfd", "pages": [45], "keywords": ["start"]},
+  {"id": "L6", "type": "paraphrase", "q": "Drive got too hot and tripped.", "manual": "lenze_smvector_vfd", "pages": [44], "keywords": ["cool|load|temperature"]},
+  {"id": "L7", "type": "direct", "q": "How do I see which device sent the stop command?", "manual": "lenze_smvector_vfd", "pages": [43], "keywords": ["mode"]},
+  {"id": "L8", "type": "paraphrase", "q": "Motor is tripping on ground fault.", "manual": "lenze_smvector_vfd", "pages": [45], "keywords": ["ground|motor phase|cable"]},
+
+  {"id": "X1", "type": "cross", "q": "My unit has an overtemperature shutdown, what do I check?", "accept": [["doosan_p250wjd_air_compressor", [40, 56, 57, 58]], ["lenze_smvector_vfd", [44]]]},
+  {"id": "X2", "type": "cross", "q": "What does code 5 mean?", "manual": "doosan_p250wjd_air_compressor", "pages": [40, 58], "keywords": ["oil pressure|oil press"]},
+  {"id": "X3", "type": "cross", "q": "Motor won't run.", "accept": [["grundfos_cr_cri_crn_pump", [35]], ["lenze_smvector_vfd", [42, 43, 44, 45]], ["doosan_p250wjd_air_compressor", [56]]]},
+
+  {"id": "R1", "type": "refuse", "q": "What's the torque spec for the cylinder head bolts on the compressor engine?"},
+  {"id": "R2", "type": "refuse", "q": "How do I reset an error on a Carrier rooftop unit?"},
+  {"id": "R3", "type": "refuse", "q": "What is fault code F.OC on the SMVector?"},
+  {"id": "R4", "type": "refuse", "q": "What's the part number for a replacement Grundfos shaft seal kit for a CR 32?"}
+]

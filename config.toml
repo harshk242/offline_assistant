@@ -1,0 +1,26 @@
+# Offline assistant configuration. Every key can be overridden with an environment
+# variable OA_<KEY> (for example OA_LLM_MOCK=1 or OA_LLM_URL=http://127.0.0.1:18181).
+# Relative paths are resolved against this file's directory.
+
+db_path = "data/index.db"
+manuals_dir = "manuals"
+
+# Retrieval
+top_k = 3
+# Minimum BM25 relevance (sqlite bm25() negated, so higher is better). Pages below
+# this are dropped; if none remain, the answer is "not found" without an LLM call.
+min_score = 2.5
+
+# LLM: LFM3-1.7B on the board's NPU via `geniex serve` (OpenAI-compatible)
+llm_url = "http://127.0.0.1:18181"
+llm_model = "LiquidAI/LFM3-1.7B-GGUF:Q4_0"
+llm_mock = false             # true = no network; extractive mock answer for laptop testing
+llm_max_tokens = 200         # always sent as max_completion_tokens
+llm_timeout_s = 60
+# Characters of each page passed to the model (3 pages per prompt)
+page_chars = 2500
+
+# Embeddings (phase 2): LFM2.5-Embedding-350M Q8_0 via `llama-server --embeddings` on the CPU
+# (scripts/embed.sh), so it doesn't compete with LFM3 for the NPU. Prefix inputs "query: " / "document: ".
+embed_url = "http://127.0.0.1:18182"
+embed_model = "LFM2.5-Embedding-350M"
