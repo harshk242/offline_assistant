@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offline Maintenance Assistant</title>
+<!-- Web fonts load when online; offline the slides fall back to Arial / Courier New. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+* { margin: 0; box-sizing: content-box; }
+html, body { height: 100%; background: #0B1218; overflow: hidden; }
+#stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; }
+#stage > section { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; display: none !important; }
+#stage > section.active { display: flex !important; }
+aside { display: none; }
+h1, h2, h3, p { overflow-wrap: break-word; }
+x-shape { display: block; }
+x-shape[kind="arrow-right"] { clip-path: polygon(0 30%, 60% 30%, 60% 0, 100% 50%, 60% 100%, 60% 70%, 0 70%); }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: .35em .6em; text-align: left; border-bottom: 2px solid #CFC9BA; }
+th { border-bottom: 3px solid #14202B; }
+#notes { position: fixed; left: 0; right: 0; bottom: 0; max-height: 35vh; overflow: auto; background: #14202Bee; color: #F4F2EC; font: 18px/1.5 Inter, Arial, sans-serif; padding: 16px 24px; display: none; }
+#notes.on { display: block; }
+#count { position: fixed; right: 16px; bottom: 12px; color: #8A939B; font: 14px Inter, Arial, sans-serif; }
+@media print {
+  @page { size: 1920px 1080px; margin: 0; }
+  html, body { overflow: visible; height: auto; background: none; }
+  #stage { position: static; transform: none !important; width: auto; height: auto; }
+  #stage > section { position: relative; display: flex !important; page-break-after: always; break-after: page; }
+  #notes, #count { display: none !important; }
+  * { animation: none !important; }
+}
+</style>
+<style>
+:root {
+  --ink: #14202B;
+  --paper: #F4F2EC;
+  --paper-2: #E9E5DA;
+  --line: #CFC9BA;
+  --body: #4A5560;
+  --orange: #D9692A;
+  --orange-text: #A84E17;
+  --orange-on-dark: #EE8A4A;
+  --blue: #2470B0;
+  --soft-on-dark: #B8C4CC;
+  --card-dark: #1F2E3B;
+}
+
+body { font-family: 'Inter', Arial, sans-serif; color: var(--ink); }
+
+section {
+  box-sizing: border-box;
+  padding: 128px 128px 160px;
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+section.alt { background: var(--paper-2); }
+section.dark { background: var(--ink); color: var(--paper); }
+
+h1, h2, h3 { font-family: 'Space Grotesk', Arial, sans-serif; }
+h1 { font-size: 112px; font-weight: 700; line-height: 1.02; letter-spacing: -2px; }
+h2 { font-size: 64px; font-weight: 700; line-height: 1.08; letter-spacing: -1px; }
+h3 { font-size: 36px; font-weight: 600; line-height: 1.2; }
+p { font-size: 30px; line-height: 1.4; }
+
+.eyebrow { font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 24px; font-weight: 600; letter-spacing: 2px; color: var(--orange-text); }
+.dark .eyebrow { color: var(--orange-on-dark); }
+.head { display: flex; flex-direction: column; gap: 16px; }
+.lede { font-size: 36px; color: var(--body); max-width: 1400px; }
+.dark .lede { color: var(--soft-on-dark); }
+.muted { color: var(--body); }
+.dark .muted { color: var(--soft-on-dark); }
+.mono { font-family: 'JetBrains Mono', 'Courier New', monospace; }
+.small { font-size: 24px; }
+
+.foot { position: absolute; left: 128px; bottom: 64px; width: 1664px; font-size: 24px; color: var(--body); }
+.dark .foot { color: var(--soft-on-dark); }
+
+/* cards */
+.row { display: flex; gap: 32px; }
+.card { flex: 1; background: #FBFAF6; border: 2px solid var(--line); border-radius: 16px; padding: 36px 40px; display: flex; flex-direction: column; gap: 16px; }
+.alt .card { background: var(--paper); }
+.dark .card { background: var(--card-dark); border-color: #33475A; }
+.card .text { font-size: 28px; color: var(--body); line-height: 1.4; }
+.dark .card .text { color: var(--soft-on-dark); }
+.accent-top { border-top: 8px solid var(--orange); }
+
+/* big numbers */
+.big { font-family: 'Space Grotesk', Arial, sans-serif; font-size: 160px; font-weight: 700; line-height: 1; color: var(--orange-text); letter-spacing: -4px; }
+.stat { font-family: 'Space Grotesk', Arial, sans-serif; font-size: 64px; font-weight: 700; line-height: 1; color: var(--ink); }
+.dark .stat { color: var(--paper); }
+
+/* pills */
+.pill { font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 24px; font-weight: 600; background: var(--ink); color: var(--paper); padding: 8px 18px; border-radius: 999px; align-self: flex-start; white-space: nowrap; flex-shrink: 0; }
+.pill.orange { background: var(--orange); color: var(--ink); }
+.pill.outline { background: transparent; color: var(--orange-text); border: 2px solid var(--orange-text); }
+
+/* pipeline */
+.lane { display: flex; align-items: center; gap: 12px; }
+.lane-label { width: 200px; font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 24px; font-weight: 600; color: var(--orange-text); }
+.step { background: #FBFAF6; border: 2px solid var(--line); border-radius: 14px; padding: 22px 26px; display: flex; flex-direction: column; gap: 6px; }
+.step.hot { background: var(--ink); border-color: var(--ink); }
+.step .t { font-family: 'Space Grotesk', Arial, sans-serif; font-size: 30px; font-weight: 600; line-height: 1.15; }
+.step .d { font-size: 24px; color: var(--body); line-height: 1.3; }
+.step.hot .t { color: var(--paper); }
+.step.hot .d { color: var(--soft-on-dark); }
+.step { box-sizing: border-box; width: 300px; flex-shrink: 0; }
+.flow-arrow { width: 48px; height: 24px; background: #8A939B; flex-shrink: 0; }
+.dark .flow-arrow { background: #6F8292; }
+.dark .step { background: var(--card-dark); border-color: #33475A; }
+.dark .step .t { color: var(--paper); }
+.dark .step .d { color: var(--soft-on-dark); }
+.dark .step.hot { background: var(--orange); border-color: var(--orange); }
+.dark .step.hot .t, .dark .step.hot .d { color: var(--ink); }
+.narrow .step { width: 272px; }
+.narrow .lane { align-items: stretch; }
+.narrow .flow-arrow { align-self: center; }
+
+/* stat list */
+.stat-item { display: flex; flex-direction: column; gap: 8px; padding: 24px 0; border-top: 2px solid var(--line); }
+.stat-item .stat { font-size: 56px; }
+.stat-item .small { line-height: 1.3; }
+
+/* bar chart */
+.chart { display: flex; flex-direction: column; gap: 22px; }
+.bar-row { display: flex; align-items: center; gap: 24px; }
+.bar-label { width: 330px; display: flex; flex-direction: column; gap: 2px; }
+.bar-label .n { font-size: 28px; font-weight: 600; line-height: 1.2; }
+.bar-label .s { font-size: 24px; color: var(--body); line-height: 1.2; }
+.bars { display: flex; gap: 2px; height: 48px; }
+.seg-pre { background: var(--orange); border-radius: 4px 0 0 4px; height: 48px; }
+.seg-gen { background: var(--blue); border-radius: 0 4px 4px 0; height: 48px; }
+.bar-val { font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 26px; font-weight: 600; white-space: nowrap; }
+.legend { display: flex; gap: 40px; align-items: center; }
+.key { display: flex; gap: 12px; align-items: center; }
+.swatch { width: 28px; height: 28px; border-radius: 4px; }
+.key p { font-size: 24px; color: var(--body); }
+.ours { background: #FBFAF6; border-radius: 12px; }
+
+/* table */
+table { font-size: 28px; color: var(--ink); }
+
+/* motion */
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+.rise { animation: rise 520ms cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i, 0) * 110ms); }
+.fade { animation: fadein 600ms ease-out both; animation-delay: calc(var(--i, 0) * 110ms); }
+
+</style>
+</head>
+<body>
+<!-- Keys: ←/→ or click to move, N toggles speaker notes, F fullscreen. Print to PDF for a handout. -->
+<div id="stage">
+<section id="cover" class="dark" style="justify-content:space-between;">
+<div class="head rise" style="gap:32px;">
+<p class="eyebrow">ON-DEVICE RAG · LIQUID AI LFM3 · QUALCOMM DRAGONWING IQ-9075</p>
+<h1 style="width:1400px;">Offline Maintenance Assistant</h1>
+<p class="lede" style="width:1300px;">Technicians ask in plain words and get a short answer with the manual page it came from. Everything runs on the device, with no network.</p>
+</div>
+<div class="row rise" style="--i:3; gap:24px;">
+<p class="pill orange">No cloud</p>
+<p class="pill" style="background:#1F2E3B;">Cites every answer</p>
+<p class="pill" style="background:#1F2E3B;">Runs on the NPU</p>
+</div>
+<p class="foot">Created by Harsh Khatri · [Event / date]</p>
+<aside>Open with the one-liner: a maintenance assistant that answers from the equipment manuals, cites the page, and never needs a connection. Model is Liquid AI LFM3-1.7B running on the Hexagon NPU of the Dragonwing IQ-9075 board.</aside>
+</section>
+
+<section id="problem">
+<div class="head">
+<p class="eyebrow">THE PROBLEM</p>
+<h2>Searching the manual eats the on-site hour</h2>
+</div>
+<div class="row" style="gap:64px; align-items:flex-start;">
+<div class="rise" style="width:540px; display:flex; flex-direction:column; gap:20px;">
+<p class="big">18 min</p>
+<p class="muted" style="font-size:30px;">of every hour on-site goes to searching equipment manuals.</p>
+<p class="small muted" style="margin-top:20px; border-top:2px solid #CFC9BA; padding-top:20px;">The cost: slower repairs, repeat visits and a lower first-time fix rate.</p>
+</div>
+<div style="flex:1; display:flex; flex-direction:column; gap:20px;">
+<div class="card accent-top rise" style="--i:1; padding:28px 36px; gap:10px;">
+<h3 style="font-size:32px;">No signal where the work happens</h3>
+<p class="text" style="font-size:26px;">Basements, mechanical rooms, factory floors and remote sites.</p>
+</div>
+<div class="card accent-top rise" style="--i:2; padding:28px 36px; gap:10px;">
+<h3 style="font-size:32px;">Keyword search misses the meaning</h3>
+<p class="text" style="font-size:26px;">The technician types “won’t start”; the manual says “fails to energize”.</p>
+</div>
+<div class="card accent-top rise" style="--i:3; padding:28px 36px; gap:10px;">
+<h3 style="font-size:32px;">Cloud AI is often off the table</h3>
+<p class="text" style="font-size:26px;">No connection, or the site doesn’t allow data to leave.</p>
+</div>
+</div>
+</div>
+<p class="foot">Source: [add survey citation]</p>
+<aside>Technicians lose roughly 18 minutes of every on-site hour hunting through long manuals. Three things make it worse: they're usually offline, PDF keyword search fails when their words differ from the manual's, and cloud AI tools are either unreachable or not allowed on site.</aside>
+</section>
+
+<section id="demo" class="alt">
+<div class="head">
+<p class="eyebrow">WHAT IT DOES</p>
+<h2>Ask in your own words, get the page</h2>
+</div>
+<div class="row" style="gap:40px; align-items:stretch;">
+<div class="card rise" style="flex:1.45; gap:22px;">
+<p class="small mono muted">TECHNICIAN ASKS</p>
+<p style="font-size:40px; font-family:'Space Grotesk', Arial, sans-serif; font-weight:600; line-height:1.2;">“Pump is running but nothing’s coming out.”</p>
+<hr style="border-top:2px solid #CFC9BA;">
+<p class="small mono muted">ASSISTANT ANSWERS</p>
+<p style="font-size:30px;">Check the inlet side first: a blocked inlet pipe or pump, a foot or non-return valve stuck closed, or a leak or air in the inlet pipe. Also check the motor isn’t turning the wrong way.</p>
+<div class="row" style="gap:16px; align-items:center;">
+<p class="pill orange">[Grundfos CR, p. 36]</p>
+<p class="small muted">Manual wording: “The pump runs but gives no water” (§10.6)</p>
+</div>
+</div>
+<div class="card rise" style="--i:2; flex:1; gap:22px;">
+<p class="small mono muted">WHEN THE MANUALS DON’T COVER IT</p>
+<p style="font-size:32px; font-family:'Space Grotesk', Arial, sans-serif; font-weight:600; line-height:1.25;">“Torque spec for the compressor engine’s cylinder head bolts?”</p>
+<hr style="border-top:2px solid #CFC9BA;">
+<p style="font-size:30px;">Not found in the manuals. The Doosan manual points to the engine maker’s documentation.</p>
+<p class="pill outline">No guessing</p>
+</div>
+</div>
+<p class="foot">Target behaviour on test questions G2 and R1 from our evaluation set</p>
+<aside>Two examples from our test set. On the left, the technician's wording ("nothing's coming out") differs from the manual's ("gives no water"), and the answer carries the exact manual and page. On the right, the answer isn't in the manuals, so the assistant says so instead of making up a torque number.</aside>
+</section>
+
+<section id="pipeline">
+<div class="head">
+<p class="eyebrow">RAG SETUP · PHASE 1</p>
+<h2>Keyword retrieval plus one capped model call</h2>
+</div>
+<div style="display:flex; flex-direction:column; gap:28px;">
+<div class="lane rise" style="--i:1;">
+<p class="lane-label" style="width:200px;">INGEST</p>
+<div class="step"><p class="t">PDF manuals</p><p class="d">Loaded onto the device</p></div>
+<x-shape kind="arrow-right" class="flow-arrow"></x-shape>
+<div class="step"><p class="t">pdfplumber</p><p class="d">Text and tables, one row per page</p></div>
+<x-shape kind="arrow-right" class="flow-arrow"></x-shape>
+<div class="step"><p class="t">SQLite FTS5</p><p class="d">manual · page · heading · text</p></div>
+</div>
+<div class="lane rise" style="--i:2;">
+<p class="lane-label" style="width:200px;">QUERY</p>
+<div class="step"><p class="t">Question</p><p class="d">Plain language, from CLI or API</p></div>
+<x-shape kind="arrow-right" class="flow-arrow"></x-shape>
+<div class="step"><p class="t">BM25 search</p><p class="d">Porter stemming, top 3 pages</p></div>
+<x-shape kind="arrow-right" class="flow-arrow"></x-shape>
+<div class="step hot"><p class="t">LFM3-1.7B</p><p class="d">On the NPU, ≤200 tokens, cited pages only</p></div>
+<x-shape kind="arrow-right" class="flow-arrow"></x-shape>
+<div class="step"><p class="t">Answer + cite</p><p class="d">[manual, p. N]</p></div>
+</div>
+<div class="row fade" style="--i:4; gap:0;">
+<div style="width:584px;"></div>
+<p class="small muted">↳ Below the score threshold: “Not found in the manuals”, with no model call</p>
+</div>
+</div>
+<div class="row rise" style="--i:5; gap:0; border-top:2px solid #CFC9BA; padding-top:32px;">
+<div style="flex:1; display:flex; flex-direction:column; gap:8px;"><p class="stat">3</p><p class="small muted">manuals: pump, compressor, VFD</p></div>
+<div style="flex:1; display:flex; flex-direction:column; gap:8px;"><p class="stat">171</p><p class="small muted">pages indexed</p></div>
+<div style="flex:1; display:flex; flex-direction:column; gap:8px;"><p class="stat">1</p><p class="small muted">SQLite file holds the index</p></div>
+<div style="flex:1; display:flex; flex-direction:column; gap:8px;"><p class="stat">0</p><p class="small muted">network calls at runtime</p></div>
+</div>
+<aside>Ingest extracts each PDF page with pdfplumber, tables included, and stores it in a SQLite FTS5 table with manual, page and nearest heading. Each page gets a stable ID (file hash plus page number) so phase 2 can add embeddings without re-parsing. At query time we run BM25 over the question, take the top 3 pages, and make a single capped LFM3 call that must answer from those pages and cite them. If nothing clears the score threshold we say "not found" and skip the model entirely.</aside>
+</section>
+
+<section id="bench">
+<div class="head">
+<p class="eyebrow">MODEL BENCHMARKS · LFM3-1.7B Q4_0 ON THE HEXAGON NPU</p>
+<h2>Answer length, not context size, sets the wait</h2>
+</div>
+<div class="row" style="gap:64px; align-items:flex-start;">
+<div class="chart" style="flex:1;">
+<div class="legend fade">
+<div class="key"><div class="swatch" style="background:#D9692A;"></div><p>Prefill (time to first token)</p></div>
+<div class="key"><div class="swatch" style="background:#2470B0;"></div><p>Writing the answer (~41 tokens/s)</p></div>
+</div>
+<div class="bar-row rise" style="--i:1;">
+<div class="bar-label"><p class="n">82 tokens in</p><p class="s">No context · 64 out</p></div>
+<div class="bars"><div class="seg-pre" style="width:7px;"></div><div class="seg-gen" style="width:105px;"></div></div>
+<div><p class="bar-val">1.6 s</p><p class="small muted">TTFT 0.11 s</p></div>
+</div>
+<div class="bar-row rise" style="--i:2;">
+<div class="bar-label"><p class="n">570 tokens in</p><p class="s">~4 chunks · 256 out</p></div>
+<div class="bars"><div class="seg-pre" style="width:34px;"></div><div class="seg-gen" style="width:419px;"></div></div>
+<div><p class="bar-val">6.7 s</p><p class="small muted">TTFT 0.50 s</p></div>
+</div>
+<div class="bar-row rise" style="--i:3;">
+<div class="bar-label"><p class="n">1,050 tokens in</p><p class="s">~8 chunks · 256 out</p></div>
+<div class="bars"><div class="seg-pre" style="width:60px;"></div><div class="seg-gen" style="width:417px;"></div></div>
+<div><p class="bar-val">7.0 s</p><p class="small muted">TTFT 0.88 s</p></div>
+</div>
+<div class="bar-row rise" style="--i:4;">
+<div class="bar-label"><p class="n">2,010 tokens in</p><p class="s" style="color:#A84E17;">≈ our 3-page prompt</p></div>
+<div class="bars"><div class="seg-pre" style="width:109px;"></div><div class="seg-gen" style="width:432px;"></div></div>
+<div><p class="bar-val">8.0 s</p><p class="small muted">TTFT 1.60 s</p></div>
+</div>
+<div class="bar-row rise" style="--i:5;">
+<div class="bar-label"><p class="n">3,450 tokens in</p><p class="s">~28 chunks · 256 out</p></div>
+<div class="bars"><div class="seg-pre" style="width:187px;"></div><div class="seg-gen" style="width:442px;"></div></div>
+<div><p class="bar-val">9.2 s</p><p class="small muted">TTFT 2.75 s</p></div>
+</div>
+<p class="small muted fade" style="--i:6; margin-top:8px;">6× more context adds about 2.6 s. Prefill runs at ~1,200 tokens/s, so we cap answers at 200 tokens instead of trimming context.</p>
+</div>
+<div class="rise" style="--i:3; width:420px; display:flex; flex-direction:column;">
+<div class="stat-item"><p class="stat">41 tok/s</p><p class="small muted">Steady decode: 41.3 → 41.5 over 20 back-to-back queries</p></div>
+<div class="stat-item"><p class="stat">65 → 69 °C</p><p class="small muted">NPU temperature across that run, with no throttling</p></div>
+<div class="stat-item"><p class="stat">389 MB</p><p class="small muted">Model server RAM; 2.4 GB used of 36 GB on the board</p></div>
+</div>
+</div>
+<p class="foot">Measured on the IQ-9075 via geniex serve, 5 runs per workload (bench/bench_lfm.py) · cold start 2.5 s</p>
+<aside>All numbers are from our benchmark script on the board. The bars show total response time split into prefill (orange) and generation (blue). Going from 570 to 3,450 prompt tokens only adds about 2.6 seconds, because prefill runs around 1,200 tokens per second. Generation at about 41 tokens per second dominates, which is why we cap answers at 200 tokens. Our real prompt is three pages, around 2,000 tokens, so expect roughly 6 to 7 seconds for a capped answer. Over 20 back-to-back queries the speed didn't drop and the NPU stayed under 69 °C. The model server uses under 400 MB of RAM.</aside>
+</section>
+
+<section id="eval" class="alt">
+<div class="head">
+<p class="eyebrow">RAG QUALITY</p>
+<h2>32 test questions over real manuals</h2>
+</div>
+<div class="row" style="gap:64px; align-items:flex-start;">
+<div class="rise" style="flex:1;">
+<table style="font-size:28px; color:#14202B;">
+<tr><th style="width:28%;">Category</th><th style="width:12%; text-align:right;">Count</th><th style="width:60%;">What it tests</th></tr>
+<tr><td>Paraphrase</td><td style="text-align:right;">12</td><td>Technician wording differs from the manual</td></tr>
+<tr><td>Direct</td><td style="text-align:right;">7</td><td>Uses the manual’s own wording</td></tr>
+<tr><td>Fault code</td><td style="text-align:right;">6</td><td>Lookups like F.OF or SECU code 5</td></tr>
+<tr><td>Cross-manual</td><td style="text-align:right;">3</td><td>No manual named; must pick the right one</td></tr>
+<tr><td>Should refuse</td><td style="text-align:right;">4</td><td>Not in the manuals; must say so</td></tr>
+</table>
+</div>
+<div class="rise" style="--i:2; width:520px; display:flex; flex-direction:column; gap:24px;">
+<p class="small mono muted">WHAT WE MEASURE</p>
+<div class="card" style="padding:24px 32px; gap:6px;"><h3 style="font-size:32px;">Top-3 hit rate</h3><p class="text" style="font-size:24px;">Expected page is in the top 3 results</p></div>
+<div class="card" style="padding:24px 32px; gap:6px;"><h3 style="font-size:32px;">Answer + citation</h3><p class="text" style="font-size:24px;">Correct answer with the right manual and page</p></div>
+<div class="card" style="padding:24px 32px; gap:6px;"><h3 style="font-size:32px;">Time to answer</h3><p class="text" style="font-size:24px;">End to end, on the board</p></div>
+</div>
+</div>
+<div class="row fade" style="--i:4; gap:24px; align-items:center;">
+<p class="pill outline">Results: [pending board run]</p>
+<p class="small muted">Expected weak spot: paraphrase questions. Phase 2 embeddings target exactly these.</p>
+</div>
+<aside>Every expected answer was checked by hand against the PDF, with both the PDF page and the printed page recorded, since they differ in two of the three manuals. Paraphrase questions are the largest group on purpose: they're where keyword search is expected to struggle and where phase 2 has to prove itself. The refusal questions check that the assistant says "not found" instead of inventing a torque spec or a part number.</aside>
+</section>
+
+<section id="roadmap">
+<div class="head">
+<p class="eyebrow">ROADMAP</p>
+<h2>From keyword search to hands-free</h2>
+</div>
+<div class="row" style="gap:24px; align-items:stretch;">
+<div class="card accent-top rise" style="--i:1; gap:18px;">
+<p class="pill orange">NOW</p>
+<h3>Phase 1: keyword RAG</h3>
+<p class="text">BM25 over manual pages, one capped LFM3 call, answer with page citation.</p>
+</div>
+<div class="card rise" style="--i:2; gap:18px;">
+<p class="pill">NEXT</p>
+<h3>Phase 2: search by meaning</h3>
+<p class="text">LFM2.5-Embedding-350M on CPU fused with BM25, then a ColBERT reranker.</p>
+</div>
+<div class="card rise" style="--i:3; gap:18px;">
+<p class="pill">V2</p>
+<h3>Images</h3>
+<p class="text">Photograph a nameplate, fault screen or part; get the equipment and the right section.</p>
+</div>
+<div class="card rise" style="--i:4; gap:18px;">
+<p class="pill">V3</p>
+<h3>Voice</h3>
+<p class="text">Hands-free questions and spoken answers, so the technician keeps working.</p>
+</div>
+</div>
+<aside>Phase 1 is deliberately keyword-only to get the loop working end to end. Phase 2 adds an embedding model and merges its results with BM25 using reciprocal rank fusion, which is what fixes the paraphrase questions. Images and voice come after that, and voice sets up the bigger idea on the next slide.</aside>
+</section>
+
+<section id="vision" class="dark narrow">
+<div class="head">
+<p class="eyebrow">BIGGER VISION: BEYOND RAG</p>
+<h2 style="width:1500px;">Voice field logs that sync when the signal returns</h2>
+<p class="lede" style="max-width:1664px;">Technicians narrate the job; the device logs it and uploads it later.</p>
+</div>
+<div class="lane">
+<div class="step rise" style="--i:1;"><p class="t">Speak</p><p class="d">“Replaced the shaft seal on pump 3, no leaks”</p></div>
+<x-shape kind="arrow-right" class="flow-arrow fade" style="--i:2;"></x-shape>
+<div class="step rise" style="--i:2;"><p class="t">Transcribe</p><p class="d">Speech to text on the device</p></div>
+<x-shape kind="arrow-right" class="flow-arrow fade" style="--i:3;"></x-shape>
+<div class="step hot rise" style="--i:3;"><p class="t">Structure</p><p class="d">LFM extracts equipment, fault, action, parts</p></div>
+<x-shape kind="arrow-right" class="flow-arrow fade" style="--i:4;"></x-shape>
+<div class="step rise" style="--i:4;"><p class="t">Queue offline</p><p class="d">Stored on the device for hours or days</p></div>
+<x-shape kind="arrow-right" class="flow-arrow fade" style="--i:5;"></x-shape>
+<div class="step rise" style="--i:5;"><p class="t">Sync</p><p class="d">Uploads to the server once there’s a connection</p></div>
+</div>
+<div class="row rise" style="--i:6; gap:24px;">
+<div class="card" style="gap:8px; padding:28px 32px;"><h3 style="font-size:32px;">Service records, automatically</h3><p class="text" style="font-size:24px;">No typing up notes after the shift</p></div>
+<div class="card" style="gap:8px; padding:28px 32px;"><h3 style="font-size:32px;">Fault patterns across the fleet</h3><p class="text" style="font-size:24px;">Which units fail, how often, and what fixed them</p></div>
+<div class="card" style="gap:8px; padding:28px 32px;"><h3 style="font-size:32px;">Field fixes feed back</h3><p class="text" style="font-size:24px;">The next technician’s assistant knows what worked</p></div>
+</div>
+<aside>This is where it goes beyond answering questions. The same voice pipeline from V3 lets a technician log their work hands-free. Example: "Replaced the shaft seal on pump 3, checked rotation, no leaks." The model turns that into a structured record: equipment, fault, action taken, parts used, and the manual page it relates to. Records queue on the device while offline and upload when it reconnects. On the server they become service history and fleet-wide fault trends, and the fixes that worked flow back into the assistant on every device.</aside>
+</section>
+
+<section id="close" class="alt" style="justify-content:space-between;">
+<div style="display:flex; flex-direction:column; gap:48px;">
+<div class="head">
+<p class="eyebrow">HOW WE’LL KNOW IT WORKS</p>
+<h2>Faster answers, fewer repeat visits</h2>
+</div>
+<div class="row" style="gap:24px; align-items:stretch;">
+<div class="card accent-top rise" style="--i:1;"><h3>Time to answer</h3><p class="text">From minutes in the manual to seconds on the device</p></div>
+<div class="card accent-top rise" style="--i:2;"><h3>First-time fix rate</h3><p class="text">The right procedure on the first visit</p></div>
+<div class="card accent-top rise" style="--i:3;"><h3>Fewer escalations</h3><p class="text">Fewer calls to senior techs and support</p></div>
+</div>
+</div>
+<div class="fade" style="--i:4; display:flex; flex-direction:column; gap:12px;">
+<h2>Thank you</h2>
+<p class="muted">Harsh Khatri · [contact or repo link]</p>
+</div>
+<aside>Close on the success metrics from the brief: time to find the answer, first-time fix rate, and fewer escalations to senior techs or support. Then open for questions.</aside>
+</section>
+
+</div>
+<div id="notes"></div>
+<div id="count"></div>
+<script>
+const stage=document.getElementById('stage'), S=[...stage.querySelectorAll(':scope > section')];
+const notes=document.getElementById('notes'), count=document.getElementById('count');
+let i=Math.max(0,Math.min(S.length-1,(parseInt(location.hash.slice(1))||1)-1));
+function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform='scale('+k+') translate(-50%,-50%)';}
+function show(n){i=Math.max(0,Math.min(S.length-1,n));S.forEach((s,j)=>s.classList.toggle('active',j===i));
+  const a=S[i].querySelector('aside');notes.textContent=a?a.textContent:'';count.textContent=(i+1)+' / '+S.length;history.replaceState(null,'','#'+(i+1));}
+addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' ','Enter'].includes(e.key))show(i+1);
+  else if(['ArrowLeft','PageUp','Backspace'].includes(e.key))show(i-1);
+  else if(e.key==='Home')show(0);else if(e.key==='End')show(S.length-1);
+  else if(e.key==='n'||e.key==='N')notes.classList.toggle('on');
+  else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}});
+addEventListener('click',e=>show(e.clientX<innerWidth/3?i-1:i+1));
+addEventListener('resize',fit);fit();show(i);
+</script>
+</body>
+</html>

@@ -51,7 +51,9 @@ class LFMClient:
             data = json.load(r)
         ms = (time.perf_counter() - t0) * 1000
         choice = data["choices"][0]
-        text = _THINK.sub("", (choice.get("message") or {}).get("content") or "").strip()
+        text = _THINK.sub("", (choice.get("message") or {}).get("content") or "")
+        # Reasoning sometimes leaks without its opening tag: keep only what follows a stray </think>.
+        text = text.rpartition("</think>")[2].strip()
         tokens = (data.get("usage") or {}).get("completion_tokens", 0)
         return LLMResult(text, bool(text), ms, tokens, choice.get("finish_reason"))
 

@@ -15,7 +15,7 @@ min_score = 2.5
 llm_url = "http://127.0.0.1:18181"
 llm_model = "LiquidAI/LFM3-1.7B-GGUF:Q4_0"
 llm_mock = false             # true = no network; extractive mock answer for laptop testing
-llm_max_tokens = 200         # always sent as max_completion_tokens
+llm_max_tokens = 150         # always sent as max_completion_tokens
 llm_timeout_s = 60
 # Characters of each page passed to the model (3 pages per prompt)
 page_chars = 2500

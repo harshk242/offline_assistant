@@ -93,7 +93,7 @@ curl -s http://127.0.0.1:18182/v1/embeddings -H "Content-Type: application/json"
 - Prefix questions with `query: ` and pages with `document: `. The model is asymmetric, so leaving the prefixes off makes results worse.
 - The vectors have 1024 dimensions and are already L2-normalized, so a dot product gives the cosine similarity.
 - Each input can be up to 2048 tokens. A full 2500-character page is about 770 tokens.
-- Measured on the board: about 2 s per full page (about 385 tok/s), 36 ms per query. Running it alongside an LFM3 call on the NPU didn't slow LFM3 down.
+- Measured on the board: about 360–400 tok/s (about 1 s for a typical page) and 44 ms per question. Bulk embedding slows LFM3 by about 70%, so embed pages at ingest time. See [benchmark.md](benchmark.md).
 
 ## From the laptop (development only)
 

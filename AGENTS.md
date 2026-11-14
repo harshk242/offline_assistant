@@ -87,7 +87,7 @@ Add an embedding model (`LFM2.5-Embedding-350M`, on CPU) and embed each page. Ma
 - Embedding model `LiquidAI/LFM2.5-Embedding-350M-GGUF` (Q8_0) runs on the CPU only, so it doesn't compete with LFM3 for the NPU. It's served by `llama-server --embeddings` (llama.cpp b12374) at `http://127.0.0.1:18182/v1/embeddings`.
   - Start, stop or check it with `bash ~/iq9/embed.sh start|stop|status` (repo copy: `scripts/embed.sh`). It doesn't restart after a reboot.
   - Prefix questions with `query: ` and pages with `document: `. Vectors have 1024 dimensions and are already normalized (dot product = cosine). Each input can be up to 2048 tokens.
-  - Speed: about 2 s per manual page, about 40 ms per question.
+  - Speed: about 44 ms per question, about 1 s per typical page (about 4 min for the current 167 pages). Bulk embedding slows LFM3 by about 70%, so embed pages at ingest time, not while answering. See [docs/benchmark.md](docs/benchmark.md).
 
 ## Notes
 

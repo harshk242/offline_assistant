@@ -1,0 +1,95 @@
+{
+  "model": "LFM2.5-Embedding-350M Q8_0",
+  "date": "2026-11-14 04:07 UTC",
+  "corpus": {
+    "pages": 167,
+    "over_limit": [],
+    "tokens": {
+      "median": 488,
+      "p95": 1414,
+      "max": 2019,
+      "total": 88652
+    },
+    "est_full_embed_s": 244
+  },
+  "query_latency_s": {
+    "median": 0.0441,
+    "p95": 0.0723,
+    "max": 0.0917
+  },
+  "page_latency": [
+    {
+      "tokens": "0-255",
+      "n": 5,
+      "latency_s": {
+        "median": 0.0299,
+        "p95": 0.2682,
+        "max": 0.2682
+      },
+      "tok_per_s": 359
+    },
+    {
+      "tokens": "256-511",
+      "n": 5,
+      "latency_s": {
+        "median": 0.913,
+        "p95": 1.164,
+        "max": 1.164
+      },
+      "tok_per_s": 409
+    },
+    {
+      "tokens": "512-1023",
+      "n": 5,
+      "latency_s": {
+        "median": 1.342,
+        "p95": 2.0489,
+        "max": 2.0489
+      },
+      "tok_per_s": 393
+    },
+    {
+      "tokens": "1024-2048",
+      "n": 5,
+      "latency_s": {
+        "median": 4.9198,
+        "p95": 5.5223,
+        "max": 5.5223
+      },
+      "tok_per_s": 345
+    }
+  ],
+  "batching": [
+    {
+      "batch": 1,
+      "pages": 16,
+      "wall_s": 17.76,
+      "pages_per_s": 0.9,
+      "tok_per_s": 363
+    },
+    {
+      "batch": 8,
+      "pages": 16,
+      "wall_s": 17.75,
+      "pages_per_s": 0.9,
+      "tok_per_s": 363
+    }
+  ],
+  "contention": {
+    "llm_alone_s": {
+      "median": 0.9057,
+      "p95": 1.1517,
+      "max": 1.1517
+    },
+    "llm_while_embedding_s": {
+      "median": 1.5638,
+      "p95": 1.7074,
+      "max": 1.7074
+    }
+  },
+  "memory": {
+    "rss_mb": 1023.8,
+    "peak_rss_mb": 1023.8,
+    "system_used_gb": 3.1
+  }
+}

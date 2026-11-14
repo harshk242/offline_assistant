@@ -72,6 +72,18 @@ def test_one_capped_call_without_thinking(conn, fake):
     assert a.text == "Replace the fuses [pump, p. 35]."
 
 
+def test_leaked_reasoning_is_dropped(conn, fake):
+    srv = fake("The user asks about fuses.</think>Replace the fuses [pump, p. 35].")
+    a = answer("The fuses are blown", cfg_for(srv), conn=conn)
+    assert a.text == "Replace the fuses [pump, p. 35]."
+
+
+def test_reworded_refusal_counts_as_not_found(conn, fake):
+    srv = fake("Not found in the provided manuals.")
+    a = answer("The fuses are blown", cfg_for(srv), conn=conn)
+    assert not a.found and a.text == NOT_FOUND
+
+
 def test_not_found_skips_the_llm(conn, fake):
     srv = fake()
     a = answer("Carrier rooftop unit reset", cfg_for(srv), conn=conn)
@@ -133,3 +145,14 @@ def test_excerpt_centres_on_matching_lines():
     out = excerpt(text, "What's an HF fault?", 500)
     assert "f.HF" in out and len(out) <= 510 and out.startswith("…")
     assert excerpt("short page", "anything", 500) == "short page"
+
+
+def test_parenthesised_citations_are_normalised():
+    hits = [Hit("pump", 35, "", "", 5.0)]
+    assert check_citations("Replace fuses (pump, p. 35).", hits) == ("Replace fuses [pump, p. 35].", [("pump", 35)])
+
+
+def test_truncated_reply_is_trimmed_to_last_complete_line():
+    from assistant.answer import trim_truncated
+    assert trim_truncated("- Replace fuses [pump, p. 35].\n- Check the breaker [pump, p.") == "- Replace fuses [pump, p. 35]."
+    assert trim_truncated("- Replace fuses [pump, p. 35]") == "- Replace fuses [pump, p. 35]"
